@@ -16,6 +16,7 @@ import requests
 from datetime import datetime               # needed for time/regular expressions
 import re
 
+import os
 
 ###
 # Initialize our FLASK application object from the Flask class like so:
@@ -74,21 +75,22 @@ def book_data():
 
     titles = []
     prices = []
+    sale_prices = []
 
     # For each book listed on the page, get the title and the price from inside in the html data
     for book in book_results:
         titles.append(book.h3.a.get('title'))
         prices.append(float(book.find('p', class_="price_color").text[1:]))
+        sale_prices = list(map( lambda x: x * 0.75, prices))
 
     # Create a DataFrame using the two lists
-    book_data = pd.DataFrame(list(zip(titles, prices)), columns=['Titles','Prices'])    
+    book_data = pd.DataFrame(list(zip(titles, prices, sale_prices)), columns=['Titles','Prices','Sale Prices'])    
     print(book_data)        # Print to the terminal as confirmation - only we can see this
 
     # Format and print the DataFrame using the html template provided in the templates subdirectory
-    return render_template('template.html',  tables=[book_data.to_html(classes='data')], titles=book_data.columns.values)
+    return render_template("template.html",  tables=[book_data.to_html(classes='data')], titles=book_data.columns.values)
 
 @app.route("/learn")
 def learn():
     # Return a string the describes one thing you learned in ENSF 692.
-    pass
-
+    return "In ENSF692 I learned how to process big data without having to copy the entire database for each operation."
